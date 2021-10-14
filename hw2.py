@@ -65,21 +65,6 @@ def linear_classifier_test(Wb, x, y, num_class):
     return accuracy
 
 
-def knn_test(X_train, y_train, X_test, y_test, k):
-    n_train_sample = X_train.shape[0]
-    n_test_sample  = X_test.shape[0]
-
-    dist_mat = np.sum(X_train ** 2, axis=1)[:, np.newaxis] + (np.sum(X_test ** 2, axis=1)[:, np.newaxis]).T \
-               - 2 * np.dot(np.reshape(X_train, (n_train_sample, -1)), np.reshape(X_test, (n_test_sample, -1)).T)
-
-    # choose most frequent index
-    predicted_labels, _ = stats.mode(y_train[np.argsort(dist_mat, axis=0)[range(k), :]])
-
-    accuracy = np.sum(np.reshape(predicted_labels, (-1,)) == y_test.reshape(-1, )) / n_test_sample
-    return accuracy
-
-
-
 # number of classes: this can be either 3 or 4
 num_class = 4
 
