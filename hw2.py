@@ -15,27 +15,33 @@ import data_generator as dg
 
 # you can define/use whatever functions to implememt
 
+def get_scores(Wb, x, num_class, n, feat_dim):
+    Wb_t = np.reshape(Wb, (-1, 1))
+    W = np.reshape(Wb_t[:num_class * feat_dim], (num_class, feat_dim))
+    b = np.reshape(Wb_t[-num_class:], (num_class, -1))
+    return W @ np.reshape(x.T, (-1, n)) + b
+
+
 ########################################
 # Part 1. cross entropy loss
 ########################################
 def cross_entropy_softmax_loss(Wb, x, y, num_class, n, feat_dim):
-    # implement your function here
-    # return cross entropy loss
-    pass
+    exp_scores = np.exp(get_scores(Wb, x, num_class, n, feat_dim))
+    normalized_scores = exp_scores / exp_scores.sum(axis=0)
+
+    real_scores = normalized_scores[y, np.arange(n)]
+    return -1 * np.log(real_scores).sum()
+
 
 ########################################
 # Part 2. SVM loss calculation
 ########################################
 def svm_loss(Wb, x, y, num_class, n, feat_dim):
-    Wb_t = np.reshape(Wb, (-1, 1))
-    W = np.reshape(Wb_t[:num_class * feat_dim], (num_class, feat_dim))
-    b = np.reshape(Wb_t[-num_class:], (num_class, -1))
+    scores = get_scores(Wb, x, num_class, n, feat_dim)
+    real_scores = scores[y, np.arange(n)]
 
-    scores = W @ np.reshape(x.T, (-1, n)) + b
-    real = scores[y, np.arange(n)]
-
-    losses = np.maximum(0, scores - real + 1)
-    return np.sum(losses) / n - 1
+    losses = np.maximum(0, scores - real_scores + 1)
+    return losses.sum() / n - 1
 
 ########################################
 # Part 3. kNN classification
@@ -105,7 +111,7 @@ x_test, y_test = dg.generate(number=n_test, seed=None, plot=False, num_class=num
 # set classifiers to 'svm' to test SVM classifier
 # set classifiers to 'softmax' to test softmax classifier
 # set classifiers to 'knn' to test kNN classifier
-classifiers = 'svm'
+classifiers = 'softmax'
 
 if classifiers == 'svm':
     print('training SVM classifier...')
