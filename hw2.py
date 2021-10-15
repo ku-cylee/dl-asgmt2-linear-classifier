@@ -27,9 +27,15 @@ def cross_entropy_softmax_loss(Wb, x, y, num_class, n, feat_dim):
 # Part 2. SVM loss calculation
 ########################################
 def svm_loss(Wb, x, y, num_class, n, feat_dim):
-    # implement your function here
-    # return SVM loss
-    pass
+    Wb_t = np.reshape(Wb, (-1, 1))
+    W = np.reshape(Wb_t[:num_class * feat_dim], (num_class, feat_dim))
+    b = np.reshape(Wb_t[-num_class:], (num_class, -1))
+
+    scores = W @ np.reshape(x.T, (-1, n)) + b
+    real = scores[y, np.arange(n)]
+
+    losses = np.maximum(0, scores - real + 1)
+    return np.sum(losses) / n - 1
 
 ########################################
 # Part 3. kNN classification
@@ -99,7 +105,7 @@ x_test, y_test = dg.generate(number=n_test, seed=None, plot=False, num_class=num
 # set classifiers to 'svm' to test SVM classifier
 # set classifiers to 'softmax' to test softmax classifier
 # set classifiers to 'knn' to test kNN classifier
-classifiers = 'softmax'
+classifiers = 'svm'
 
 if classifiers == 'svm':
     print('training SVM classifier...')
