@@ -35,9 +35,15 @@ def svm_loss(Wb, x, y, num_class, n, feat_dim):
 # Part 3. kNN classification
 ########################################
 def knn_test(X_train, y_train, X_test, y_test, k):
-    # implement your function here
-    #return accuracy
-    pass
+    x_train_norms = np.sum(X_train ** 2, axis=1)[:, np.newaxis]
+    x_test_norms = np.sum(X_test ** 2, axis=1)[:, np.newaxis].T
+    train_test_dots = X_train @ X_test.T
+
+    scores = x_train_norms + x_test_norms - 2 * train_test_dots
+    sorted_scores = np.argsort(scores, axis=0)[:k, :]
+    [ test_result ], _ = stats.mode(y_train[sorted_scores])
+
+    return np.sum(test_result == y_test) / X_test.shape[0]
 
 
 # now lets test the model for linear models, that is, SVM and softmax
