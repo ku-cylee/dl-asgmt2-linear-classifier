@@ -15,7 +15,7 @@ import data_generator as dg
 
 # you can define/use whatever functions to implememt
 
-def get_scores(Wb, x, num_class, n, feat_dim):
+def get_linear_scores(Wb, x, num_class, n, feat_dim):
     Wb_t = np.reshape(Wb, (-1, 1))
     W = np.reshape(Wb_t[:num_class * feat_dim], (num_class, feat_dim))
     b = np.reshape(Wb_t[-num_class:], (num_class, -1))
@@ -26,18 +26,18 @@ def get_scores(Wb, x, num_class, n, feat_dim):
 # Part 1. cross entropy loss
 ########################################
 def cross_entropy_softmax_loss(Wb, x, y, num_class, n, feat_dim):
-    exp_scores = np.exp(get_scores(Wb, x, num_class, n, feat_dim))
+    exp_scores = np.exp(get_linear_scores(Wb, x, num_class, n, feat_dim))
     normalized_scores = exp_scores / exp_scores.sum(axis=0)
 
     real_scores = normalized_scores[y, np.arange(n)]
-    return -1 * np.log(real_scores).sum()
+    return np.log(real_scores).sum() / (-n)
 
 
 ########################################
 # Part 2. SVM loss calculation
 ########################################
 def svm_loss(Wb, x, y, num_class, n, feat_dim):
-    scores = get_scores(Wb, x, num_class, n, feat_dim)
+    scores = get_linear_scores(Wb, x, num_class, n, feat_dim)
     real_scores = scores[y, np.arange(n)]
 
     losses = np.maximum(0, scores - real_scores + 1)
